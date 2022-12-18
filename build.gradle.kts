@@ -14,11 +14,20 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io")}
+    maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
+    maven { url = uri("https://repo.dmulloy2.net/repository/public/")}
 }
 
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
+    implementation("io.github.monun:kommand-api:2.14.0")
+    implementation("io.github.monun:tap-api:4.7.3")
+    compileOnly("io.github.ithotl:PlayerStats:1.7.2-SNAPSHOT")
+    compileOnly(files("libs/LiteEco.jar"))
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("io.papermc.paper:paper-api:${Dependency.Paper.Version}-R0.1-SNAPSHOT")
     paperDevBundle("${Dependency.Paper.Version}-R0.1-SNAPSHOT")
 }
 
@@ -41,21 +50,14 @@ tasks {
     fun registerJar(
         classifier: String,
         source: Any
-    ) = register<Copy>("test${classifier.capitalized()}Jar") {
+    ) = register<Copy>("build${classifier.capitalized()}Jar") {
         from(source)
 
         val prefix = project.name
-        val plugins = rootProject.file(".server/plugins-$classifier")
-        val update = File(plugins, "update")
-        val regex = Regex("($prefix).*(.jar)")
+        val plugins = rootProject.file("E:\\마크구덕공고서버\\server\\plugins")
 
         from(source)
-        into(if (plugins.listFiles { _, it -> it.matches(regex) }?.isNotEmpty() == true) update else plugins)
-
-        doLast {
-            update.mkdirs()
-            File(update, "RELOAD").delete()
-        }
+        into(plugins)
     }
 
     registerJar("dev", jar)

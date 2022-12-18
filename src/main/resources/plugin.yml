@@ -1,7 +1,14 @@
 name: ${pluginName}
 version: ${version}
 main: ${group}.${packageName}.plugin.${pluginName}Plugin
-api-version: ${paperVersion}
+softdepend:
+  - Vault
+  - LiteEco
+  - PlayerStats
+  - ProtoclLib
+api-version: 1.19
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}
   - org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}
+  - io.github.monun:kommand-core:2.14.0
+  - io.github.monun:tap-core:4.7.3
