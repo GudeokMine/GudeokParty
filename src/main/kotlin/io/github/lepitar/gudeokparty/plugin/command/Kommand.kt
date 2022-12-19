@@ -60,7 +60,6 @@ object Kommand {
                     }
                 }
             }
-
             then("sell") {
                 then("amount" to int(1, 64)) {
                     then("item" to string(StringType.GREEDY_PHRASE)) {
