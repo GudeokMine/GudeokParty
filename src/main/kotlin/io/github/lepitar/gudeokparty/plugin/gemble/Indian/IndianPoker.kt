@@ -163,6 +163,38 @@ class IndianPoker(val p1: Player, val p2: Player) {
 
             if (econ.getBalance(p1) < perMoney || econ.getBalance(p2) < perMoney || round > 3) {
                 // 끝
+                
+                var p1Num = 0
+                var p2Num = 0
+                p1Card!!.updateEquipment {
+                    p1Num = materials.indexOf(helmet.type)
+                }
+                p2Card!!.updateEquipment {
+                    p2Num = materials.indexOf(helmet.type)
+                }
+                if (p1Num > p2Num) {
+                    players.forEach {
+                        it.key.sendTitle(
+                            "${ChatColor.GREEN.bold()}${p1.name} 승리",
+                            "${ChatColor.GOLD.bold()}$totalMoney 원",
+                            20,
+                            100,
+                            20
+                        )
+                    }
+                    econ.depositPlayer(p1, totalMoney.toDouble())
+                } else {
+                    players.forEach {
+                        it.key.sendTitle(
+                            "${ChatColor.GREEN.bold()}${p2.name} 승리",
+                            "${ChatColor.GOLD.bold()}$totalMoney 원",
+                            20,
+                            100,
+                            20
+                        )
+                    }
+                    econ.depositPlayer(p2, totalMoney.toDouble())
+                }
                 end()
             }
         }
@@ -171,54 +203,6 @@ class IndianPoker(val p1: Player, val p2: Player) {
     }
 
     fun end() {
-        if (!dieEnd) {
-            //버그
-            var innerTick = 0
-            resultTask = instance.server.scheduler.runTaskTimer(instance, Runnable {
-                if (innerTick == 0) {
-                    players.forEach {
-                        it.key.sendMessage("${ChatColor.AQUA.bold()}승자는..")
-                    }
-                }
-
-                if (innerTick >= 80) {
-                    var p1Num = 0
-                    var p2Num = 0
-                    p1Card!!.updateEquipment {
-                        p1Num = materials.indexOf(helmet.type)
-                    }
-                    p2Card!!.updateEquipment {
-                        p2Num = materials.indexOf(helmet.type)
-                    }
-                    if (p1Num > p2Num) {
-                        players.forEach {
-                            it.key.sendTitle(
-                                "${ChatColor.GREEN.bold()}${p1.name} 승리",
-                                "${ChatColor.GOLD.bold()}$totalMoney 원",
-                                20,
-                                100,
-                                20
-                            )
-                        }
-                        econ.depositPlayer(p1, totalMoney.toDouble())
-                    } else {
-                        players.forEach {
-                            it.key.sendTitle(
-                                "${ChatColor.GREEN.bold()}${p2.name} 승리",
-                                "${ChatColor.GOLD.bold()}$totalMoney 원",
-                                20,
-                                100,
-                                20
-                            )
-                        }
-                        econ.depositPlayer(p2, totalMoney.toDouble())
-                    }
-                    resultTask?.cancel()
-                    end()
-                }
-                innerTick++
-            }, 20L, 1L)
-        }
         task?.cancel()
         p1Server.clear()
         p2Server.clear()
