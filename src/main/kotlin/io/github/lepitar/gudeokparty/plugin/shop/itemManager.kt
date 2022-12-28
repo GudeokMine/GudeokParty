@@ -58,7 +58,6 @@ object itemManager {
         val itemCaseList = config.getConfigurationSection("item")?.getKeys(false)
         if (itemCaseList != null) {
             for (itemCase in itemCaseList) {
-                println(itemCase)
                 val encoded_item = config.getString("item.$itemCase.item")
                 val price = config.getInt("item.$itemCase.price")
                 val world = Bukkit.getWorld(config.getString("item.$itemCase.world")!!)
@@ -77,6 +76,20 @@ object itemManager {
                 val os = BukkitObjectInputStream(io)
                 val item = os.readObject() as ItemStack
                 val loadedItem = ItemCase(item, loc, signLoc, price, buy)
+                loadedItem.sign!!.world.getBlockAt(loadedItem.sign!!).state.apply {
+                    if (this is Sign) {
+                        this.setLine(0, "${ChatColor.BOLD}[ ${loadedItem.item.itemMeta.displayName} ]")
+                        this.setLine(1, "${ChatColor.BOLD}쉬프트 클릭 64개 구매")
+                        if (loadedItem.buy) {
+                            this.setLine(2, "${ChatColor.BOLD}구매: ${loadedItem.price}원")
+                        } else {
+                            this.setLine(2, "${ChatColor.BOLD}구매: 불가")
+                        }
+                        this.setLine(3, "${ChatColor.BOLD}판매: ${loadedItem.price*80/100}원")
+                        this.isGlowingText = true
+                        this.update()
+                    }
+                }
                 itemList.add(loadedItem)
             }
         }

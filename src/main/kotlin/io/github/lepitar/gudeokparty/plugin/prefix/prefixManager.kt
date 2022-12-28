@@ -39,6 +39,6 @@ object prefixManager {
     }
 
     fun getPrefix(player: Player): String {
-    return prefixList.find { it.player.uniqueId == player.uniqueId }!!.prefix
+        return prefixList.find { it.player.uniqueId == player.uniqueId }!!.prefix
     }
 }

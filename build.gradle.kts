@@ -17,6 +17,7 @@ repositories {
     maven { url = uri("https://jitpack.io")}
     maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
     maven { url = uri("https://repo.dmulloy2.net/repository/public/")}
+    maven { url = uri("https://epicericee.github.io/ShopChest/maven/")}
 }
 
 dependencies {
@@ -27,6 +28,8 @@ dependencies {
     compileOnly("io.github.ithotl:PlayerStats:1.7.2-SNAPSHOT")
     compileOnly(files("libs/LiteEco.jar"))
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("net.luckperms:api:5.4")
+    compileOnly("de.epiceric:ShopChest:1.11.1")
     compileOnly("io.papermc.paper:paper-api:${Dependency.Paper.Version}-R0.1-SNAPSHOT")
     paperDevBundle("${Dependency.Paper.Version}-R0.1-SNAPSHOT")
 }

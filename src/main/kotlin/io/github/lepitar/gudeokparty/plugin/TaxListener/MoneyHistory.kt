@@ -12,7 +12,6 @@ import org.bukkit.event.Listener
 class MoneyHistory : Listener {
 
     private val economy = GudeokpartyPlugin.econ
-    private val instance = GudeokpartyPlugin.instance
     private val config = dataConfig.customConfig!!
 
     @EventHandler
@@ -24,6 +23,11 @@ class MoneyHistory : Listener {
         if (!economy.has(sender, e.money)) {
             e.isCancelled = true
             sender.sendMessage("§c돈이 부족합니다.")
+            return
+        }
+
+        if (sender.uniqueId == target.uniqueId) {
+            e.isCancelled = true
             return
         }
 

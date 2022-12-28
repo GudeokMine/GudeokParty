@@ -104,6 +104,7 @@ class ItemcaseListener: Listener {
             val itemcase = itemManager.registerPlayer[player.uniqueId]!!
             itemcase.sign = block.location
             e.setLine(0, "${ChatColor.BOLD}[ ${itemcase.item.itemMeta.displayName} ]")
+            e.setLine(1, "${ChatColor.BOLD}쉬프트 클릭 64개 구매")
             if (itemcase.buy) {
                 e.setLine(2, "${ChatColor.BOLD}구매: ${itemcase.price}원")
             } else {

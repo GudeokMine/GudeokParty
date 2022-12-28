@@ -1,8 +1,8 @@
-package io.github.lepitar.gudeokparty.plugin.gemble.Indian
+package io.github.lepitar.gudeokparty.plugin.gamble.Indian
 
 import io.github.lepitar.gudeokparty.plugin.GudeokpartyPlugin.Companion.econ
 import io.github.lepitar.gudeokparty.plugin.GudeokpartyPlugin.Companion.instance
-import io.github.lepitar.gudeokparty.plugin.gemble.gameManager
+import io.github.lepitar.gudeokparty.plugin.gamble.gameManager
 import io.github.lepitar.gudeokparty.plugin.util.textColor.bold
 import io.github.monun.tap.fake.FakeEntity
 import io.github.monun.tap.fake.FakeEntityServer
@@ -12,12 +12,12 @@ import org.bukkit.Material
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryType
-import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitTask
+import java.lang.Math.ceil
 
-class IndianPoker(val p1: Player, val p2: Player) {
-    private val perMoney = instance.config.getInt("IndianPoker.perMoney")
+class IndianPokerScheduler(private val parent: IndianPoker, private val p1: Player, private val p2: Player) {
+    private var perMoney = 0
     private val p1Inv = Bukkit.createInventory(null, InventoryType.PLAYER).apply { contents = p1.inventory.contents }
     private val p2Inv = Bukkit.createInventory(null, InventoryType.PLAYER).apply { contents = p2.inventory.contents }
     private var totalMoney = 0
@@ -29,7 +29,7 @@ class IndianPoker(val p1: Player, val p2: Player) {
     private var p1Card: FakeEntity<ArmorStand>? = null
     private var p2Card: FakeEntity<ArmorStand>? = null
 
-    val players = HashMap<Player, Boolean>().apply {
+    private val players = HashMap<Player, Boolean>().apply {
         put(p1, false)
         put(p2, false)
     }
@@ -42,7 +42,6 @@ class IndianPoker(val p1: Player, val p2: Player) {
     }
 
     private var task: BukkitTask? = null
-    private var resultTask: BukkitTask? = null
 
     private val materials = arrayOf(Material.STICK, Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD, Material.GOLDEN_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD)
     private var choice = materials.clone().toMutableList().apply {
@@ -54,6 +53,14 @@ class IndianPoker(val p1: Player, val p2: Player) {
         p2Server.addPlayer(p1)
         p1.inventory.clear()
         p2.inventory.clear()
+        if (econ.getBalance(p1) < econ.getBalance(p2)) {
+            perMoney = ceil(econ.getBalance(p1)/10).toInt()
+        } else {
+            perMoney = ceil(econ.getBalance(p2)/10).toInt()
+        }
+        for (p in players) {
+            p.key.sendMessage("${ChatColor.GREEN.bold()}고 한번당 $perMoney 원입니다")
+        }
         p1.inventory.setItem(0, emeraldItem)
         p2.inventory.setItem(0, emeraldItem)
 
@@ -163,7 +170,6 @@ class IndianPoker(val p1: Player, val p2: Player) {
 
             if (econ.getBalance(p1) < perMoney || econ.getBalance(p2) < perMoney || round > 3) {
                 // 끝
-                
                 var p1Num = 0
                 var p2Num = 0
                 p1Card!!.updateEquipment {
@@ -208,16 +214,34 @@ class IndianPoker(val p1: Player, val p2: Player) {
         p2Server.clear()
         p1.inventory.contents = p1Inv.contents
         p2.inventory.contents = p2Inv.contents
+        parent.players.forEach { (t, u) ->
+            if (t.isOnline) {
+                t.teleport(u)
+            }
+        }
+        parent.players.clear()
+        parent.start = false
+        parent.blockUpdate()
         players.forEach {
             it.key.sendMessage("${ChatColor.GOLD.bold()}인디언 포커${ChatColor.WHITE.bold()} 게임이 종료되었습니다.")
-        }.let {
-            gameManager.indianList.remove(this@IndianPoker)
         }
     }
 
     fun go(player: Player) {
         if (tick >= 100) {
             players[player] = true
+        }
+    }
+
+    fun forceQuit(player: Player) {
+        if (p1 == player) {
+            p2.sendMessage("${ChatColor.RED.bold()}${p1.name}${ChatColor.WHITE.bold()}님이 게임을 나가셨습니다...")
+            econ.withdrawPlayer(p2, totalMoney.toDouble())
+            end()
+        } else if (p2 == player) {
+            p1.sendMessage("${ChatColor.RED.bold()}${p2.name}${ChatColor.WHITE.bold()}님이 게임을 나가셨습니다...")
+            econ.withdrawPlayer(p1, totalMoney.toDouble())
+            end()
         }
     }
 

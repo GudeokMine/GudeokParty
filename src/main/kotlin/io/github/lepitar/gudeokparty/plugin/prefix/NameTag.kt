@@ -19,9 +19,10 @@ class Nametag(val player: Player) {
     var prefix = ""
     private var team = board!!.registerNewTeam(name)
     val fakeServer = FakeEntityServer.create(instance)
-    var armorStand = fakeServer.spawnEntity(player.location.add(0.0,2.2, 0.0), ArmorStand::class.java).apply {
+    var armorStand = fakeServer.spawnEntity(player.eyeLocation.add(0.0,0.5, 0.0), ArmorStand::class.java).apply {
         updateMetadata {
             isVisible = false
+            isSmall = true
             isMarker = true
             customName(Component.text(""))
             isCustomNameVisible = false
@@ -34,7 +35,7 @@ class Nametag(val player: Player) {
         team.addPlayer(player)
         scheduler = instance.server.scheduler.runTaskTimer(instance, Runnable {
             fakeServer.update()
-            armorStand.moveTo(player.location.add(0.0, 2.2, 0.0))
+            armorStand.moveTo(player.eyeLocation.add(0.0, 0.5, 0.0))
         }, 0L, 0L)
     }
 
